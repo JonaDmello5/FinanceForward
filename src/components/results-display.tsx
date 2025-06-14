@@ -1,7 +1,9 @@
+
 import type { ResultItem } from "@/lib/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
+import React from "react";
 
 interface ResultsDisplayProps {
   title?: string;
