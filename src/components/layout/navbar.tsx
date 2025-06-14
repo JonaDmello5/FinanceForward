@@ -3,12 +3,13 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { Menu, X, TrendingUp, Landmark, Briefcase, Users, Bitcoin, Info, BotMessageSquare } from "lucide-react";
+import { Menu, X, TrendingUp, Landmark, Briefcase, Users, Bitcoin, Info, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
 import { Logo } from "@/components/icons/logo";
 import { usePathname } from 'next/navigation';
 import { cn } from "@/lib/utils";
+import { AdPlaceholder } from "@/components/ad-placeholder";
 
 const navItems = [
   { href: "/", label: "Home", icon: <TrendingUp className="h-5 w-5" /> },
@@ -17,13 +18,13 @@ const navItems = [
   { href: "/retirement-planner", label: "Retirement Planning", icon: <Users className="h-5 w-5" /> },
   { href: "/crypto-tracker", label: "Crypto Tracker", icon: <Bitcoin className="h-5 w-5" /> },
   { href: "/about", label: "About Us", icon: <Info className="h-5 w-5" /> },
+  { href: "/contact", label: "Contact Us", icon: <Phone className="h-5 w-5" /> },
 ];
 
 export function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const pathname = usePathname();
 
-  // Close mobile menu on route change
   useEffect(() => {
     setIsMobileMenuOpen(false);
   }, [pathname]);
@@ -72,13 +73,17 @@ export function Navbar() {
           <Logo />
         </Link>
 
-        <nav className="hidden md:flex items-center space-x-6">
+        <nav className="hidden md:flex items-center space-x-3 lg:space-x-5">
           {navItems.map((item) => (
             <NavLink key={item.href} href={item.href}>
               {item.label}
             </NavLink>
           ))}
         </nav>
+        
+        <div className="hidden md:block ml-3 lg:ml-5">
+          <AdPlaceholder variant="small" height="40px" width="100px" label="Ad" className="p-0" />
+        </div>
 
         <div className="md:hidden">
           <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
@@ -104,6 +109,9 @@ export function Navbar() {
                     {item.label}
                   </MobileNavLink>
                 ))}
+                 <div className="mt-4 pt-4 border-t border-border/40">
+                    <AdPlaceholder variant="small" height="50px" width="100%" label="Ad" className="mx-auto" />
+                </div>
               </nav>
             </SheetContent>
           </Sheet>

@@ -1,10 +1,13 @@
+
 import { CalculatorCard } from "@/components/calculator-card";
 import { CryptoInvestmentForm } from "@/components/crypto-investment-form";
 import { Bitcoin } from "lucide-react";
+import { AdPlaceholder } from "@/components/ad-placeholder";
 
 export default function CryptoTrackerPage() {
   return (
-    <div className="flex flex-col items-center w-full">
+    <div className="flex flex-col items-center w-full space-y-6">
+      <AdPlaceholder variant="banner" label="Crypto Banner Ad (Above Form)" className="mb-6" />
       <CalculatorCard
         title="Cryptocurrency Investment Calculator"
         description="Project the potential future value of your cryptocurrency investments. Enter the amount of crypto, select the ticker, and specify the investment period to get an AI-powered estimation."

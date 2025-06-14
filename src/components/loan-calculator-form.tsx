@@ -1,3 +1,4 @@
+
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -14,6 +15,7 @@ import type { LoanFormData, LoanResults, AmortizationRecord, ResultItem } from "
 import { ResultsDisplay } from "./results-display";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useEffect, useState } from "react";
+import { AdPlaceholder } from "./ad-placeholder";
 
 const loanFormSchema = z.object({
   loanAmount: z.coerce.number().min(1, "Loan amount must be positive."),
@@ -73,25 +75,28 @@ export function LoanCalculatorForm() {
       const interestPayment = balance * periodicRate;
       const principalPayment = installment - interestPayment;
       balance -= principalPayment;
-      if (balance < 0) balance = 0; // Ensure balance doesn't go negative due to rounding
+      if (balance < 0.005 && balance > -0.005) balance = 0; // Handle floating point precision for zero balance
       amortizationTable.push({
         period: i,
         principal: principalPayment,
         interest: interestPayment,
         endingBalance: balance,
       });
-       if (balance === 0 && i < numberOfPayments) break; // Stop if balance is paid off early
+       if (balance === 0 && i < numberOfPayments) break; 
     }
-     // Adjust last payment if needed due to rounding
-    if (amortizationTable.length > 0 && balance > 0.005) { // Check if there's a tiny remaining balance
+    
+    if (amortizationTable.length > 0 && amortizationTable[amortizationTable.length-1].endingBalance !== 0 && amortizationTable[amortizationTable.length-1].endingBalance < installment ) { // Check if there's a tiny remaining balance
         const lastRecord = amortizationTable[amortizationTable.length - 1];
-        lastRecord.principal += lastRecord.endingBalance; // Add remaining balance to principal
+        if (Math.abs(lastRecord.endingBalance) > 0.005) { // Only adjust if difference is meaningful
+             lastRecord.principal += lastRecord.endingBalance; 
+             installment += lastRecord.endingBalance; // Adjust the last installment slightly
+        }
         lastRecord.endingBalance = 0;
     }
 
 
     return {
-      monthlyInstallment: installment, // This is actually periodic installment
+      monthlyInstallment: installment, 
       totalRepayment,
       totalInterest,
       amortizationTable,
@@ -196,6 +201,7 @@ export function LoanCalculatorForm() {
       {results && (
         <>
           <ResultsDisplay results={resultItems} />
+          <AdPlaceholder variant="leaderboard" label="Ad Between Results and Next Section" className="my-6" />
           {results.amortizationTable.length > 0 && (
             <div className="mt-8">
               <h3 className="text-xl font-semibold mb-4 text-primary font-headline">Amortization Schedule</h3>

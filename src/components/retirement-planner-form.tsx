@@ -1,3 +1,4 @@
+
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -11,6 +12,8 @@ import { LOCAL_STORAGE_KEYS } from "@/lib/constants";
 import type { RetirementFormData, RetirementResults, ResultItem } from "@/lib/types";
 import { ResultsDisplay } from "./results-display";
 import { useEffect, useState } from "react";
+import { AdPlaceholder } from "./ad-placeholder";
+import { Loader2 } from "lucide-react";
 
 const retirementFormSchema = z.object({
   currentAge: z.coerce.number().min(18, "Current age must be at least 18.").max(99, "Current age seems too high."),
@@ -34,6 +37,7 @@ const initialRetirementData: RetirementFormData = {
 export function RetirementPlannerForm() {
   const [storedData, setStoredData] = useLocalStorage<RetirementFormData>(LOCAL_STORAGE_KEYS.RETIREMENT_PLANNER, initialRetirementData);
   const [results, setResults] = useState<RetirementResults | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<RetirementFormData>({
     resolver: zodResolver(retirementFormSchema),
@@ -52,10 +56,8 @@ export function RetirementPlannerForm() {
     const monthlyRate = annualRate / 12;
     const numberOfMonths = yearsToRetirement * 12;
 
-    // Future value of current savings
     const fvCurrentSavings = currentSavings * Math.pow(1 + annualRate, yearsToRetirement);
 
-    // Future value of monthly contributions (annuity)
     let fvMonthlyContributions = 0;
     if (monthlyRate === 0) {
       fvMonthlyContributions = monthlyContribution * numberOfMonths;
@@ -64,9 +66,6 @@ export function RetirementPlannerForm() {
     }
     
     const totalSavingsAtRetirement = fvCurrentSavings + fvMonthlyContributions;
-    const totalContributions = currentSavings + (monthlyContribution * numberOfMonths); // This is simplified, should be just future contributions.
-                                                                                      // Let's adjust to: totalContributions = initial savings + sum of all monthly contributions.
-
     const totalFutureContributions = monthlyContribution * numberOfMonths;
     const totalPrincipalInvested = currentSavings + totalFutureContributions;
     const totalInterestEarned = totalSavingsAtRetirement - totalPrincipalInvested;
@@ -78,16 +77,22 @@ export function RetirementPlannerForm() {
     };
   }
 
-  function onSubmit(data: RetirementFormData) {
+  async function onSubmit(data: RetirementFormData) {
+    setIsLoading(true);
+    setResults(null); 
     setStoredData(data);
+    // Simulate calculation if needed, for now it's synchronous
+    // await new Promise(resolve => setTimeout(resolve, 500)); 
     const calculatedResults = calculateRetirementSavings(data);
     setResults(calculatedResults);
+    setIsLoading(false);
   }
 
   function handleReset() {
     form.reset(initialRetirementData);
     setStoredData(initialRetirementData);
     setResults(null);
+    setIsLoading(false);
   }
 
   const resultItems: ResultItem[] = results ? [
@@ -157,7 +162,7 @@ export function RetirementPlannerForm() {
               control={form.control}
               name="expectedReturnRate"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="md:col-span-2">
                   <FormLabel>Expected Annual Return Rate (%)</FormLabel>
                   <FormControl>
                     <Input type="number" step="0.01" placeholder="e.g., 7" {...field} />
@@ -168,13 +173,33 @@ export function RetirementPlannerForm() {
             />
           </div>
           <div className="flex space-x-4 pt-4">
-            <Button type="submit" className="flex-1">Plan Retirement</Button>
-            <Button type="button" variant="outline" onClick={handleReset} className="flex-1">Reset</Button>
+            <Button type="submit" className="flex-1" disabled={isLoading}>
+              {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Plan Retirement
+            </Button>
+            <Button type="button" variant="outline" onClick={handleReset} className="flex-1" disabled={isLoading}>Reset</Button>
           </div>
         </form>
       </Form>
 
-      {results && <ResultsDisplay results={resultItems} />}
+      {isLoading && (
+        <div className="flex justify-center items-center p-6">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <p className="ml-2">Planning your retirement...</p>
+        </div>
+      )}
+
+      {!isLoading && !results && (
+         <AdPlaceholder variant="leaderboard" label="Leaderboard Ad (Explore Retirement Options)" className="my-6" />
+      )}
+
+      {!isLoading && results && (
+        <>
+          <AdPlaceholder variant="leaderboard" label="Leaderboard Ad (Before Results)" className="my-6" />
+          <ResultsDisplay results={resultItems} />
+          <AdPlaceholder variant="inline" label="Ad Targeting Investment Options (After Results)" className="my-6" />
+        </>
+      )}
     </div>
   );
 }

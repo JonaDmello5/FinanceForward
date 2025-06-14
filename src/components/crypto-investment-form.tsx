@@ -1,3 +1,4 @@
+
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -15,6 +16,7 @@ import { cryptoFutureValue, type CryptoFutureValueInput } from "@/ai/flows/crypt
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { AdPlaceholder } from "./ad-placeholder";
 
 const cryptoInvestmentFormSchema = z.object({
   cryptoAmount: z.coerce.number().min(0.000001, "Amount must be positive."),
@@ -56,8 +58,6 @@ export function CryptoInvestmentForm() {
       };
       const aiResponse = await cryptoFutureValue(input);
       
-      // The AI flow has a mock getCryptoPrice. For a real app, we'd use it.
-      // For now, initialInvestmentUSD is not calculated as current price is mocked.
       setResults({ 
         futureValue: aiResponse.futureValue,
         cryptoTicker: data.cryptoTicker 
@@ -154,7 +154,19 @@ export function CryptoInvestmentForm() {
         </form>
       </Form>
 
-      {results && <ResultsDisplay results={resultItems} title={`Projected Value for ${results.cryptoTicker}`} />}
+      {isLoading && (
+         <div className="flex justify-center items-center p-6">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <p className="ml-2">Projecting crypto value...</p>
+        </div>
+      )}
+
+      {!isLoading && results && (
+        <>
+          <ResultsDisplay results={resultItems} title={`Projected Value for ${results.cryptoTicker}`} />
+          <AdPlaceholder variant="inline" label="Crypto Ad (After Data)" className="my-6" />
+        </>
+      )}
        <p className="text-xs text-muted-foreground mt-4 p-1">
         Note: Cryptocurrency price predictions are highly speculative and based on a simplified model with a fixed assumed growth rate and mocked current prices. This tool is for illustrative purposes only and not financial advice.
       </p>

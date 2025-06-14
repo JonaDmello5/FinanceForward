@@ -1,8 +1,10 @@
+
 import { generateAboutUsContent, AboutUsContentInput } from '@/ai/flows/finance-forward-about-us-page';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BotMessageSquare, Users, ShieldCheck } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Terminal } from "lucide-react";
+import { AdPlaceholder } from "@/components/ad-placeholder";
 
 async function AboutUsContent() {
   const input: AboutUsContentInput = {
@@ -26,6 +28,8 @@ async function AboutUsContent() {
           </CardContent>
         </Card>
 
+        <AdPlaceholder variant="leaderboard" label="Ad Between Sections" className="my-8" />
+
         <Card className="shadow-lg">
           <CardHeader className="flex flex-row items-center gap-3">
             <Users className="h-8 w-8 text-primary" />
@@ -37,6 +41,8 @@ async function AboutUsContent() {
             </p>
           </CardContent>
         </Card>
+
+        <AdPlaceholder variant="inline" label="Ad Between Sections" className="my-8" />
 
         <Card className="shadow-lg">
           <CardHeader className="flex flex-row items-center gap-3">
@@ -99,6 +105,4 @@ export default async function AboutPage() {
   );
 }
 
-// Revalidate the page periodically or on demand if content is expected to change significantly based on AI flow updates.
-// For now, as inputs are static, this will be generated at build time or on first request.
-export const revalidate = 3600; // Revalidate every hour, if needed.
+export const revalidate = 3600;

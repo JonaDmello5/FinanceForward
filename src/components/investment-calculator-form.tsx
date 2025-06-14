@@ -1,3 +1,4 @@
+
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -12,6 +13,7 @@ import { LOCAL_STORAGE_KEYS } from "@/lib/constants";
 import type { InvestmentFormData, InvestmentResults, ResultItem } from "@/lib/types";
 import { ResultsDisplay } from "./results-display";
 import { useEffect, useState } from "react";
+import { AdPlaceholder } from "./ad-placeholder";
 
 const investmentFormSchema = z.object({
   principalAmount: z.coerce.number().min(1, "Principal amount must be positive."),
@@ -45,7 +47,7 @@ export function InvestmentCalculatorForm() {
     const annualRate = data.annualInterestRate / 100;
     const years = data.investmentPeriod;
     
-    let n: number; // Number of times interest applied per time period
+    let n: number; 
     switch (data.compoundingFrequency) {
       case 'annually': n = 1; break;
       case 'semi-annually': n = 2; break;
@@ -60,7 +62,7 @@ export function InvestmentCalculatorForm() {
     return {
       futureValue,
       totalInterest,
-      totalContributions: principal, // For simple lump sum investment
+      totalContributions: principal, 
     };
   }
 
@@ -157,7 +159,12 @@ export function InvestmentCalculatorForm() {
         </form>
       </Form>
 
-      {results && <ResultsDisplay results={resultItems} />}
+      {results && (
+        <>
+          <ResultsDisplay results={resultItems} />
+          <AdPlaceholder variant="inline" label="Ad After Results Display" className="my-6" />
+        </>
+      )}
     </div>
   );
 }
