@@ -42,7 +42,10 @@ export function InvestmentCalculatorForm() {
 
   useEffect(() => {
     form.reset(storedData);
-  }, [storedData, form]);
+    if (results && storedData.currency !== results.currency) {
+      setResults(null);
+    }
+  }, [storedData, form, results]);
 
   const selectedCurrency = form.watch('currency');
 
@@ -78,8 +81,8 @@ export function InvestmentCalculatorForm() {
   }
 
   function handleReset() {
-    form.reset(initialInvestmentData);
     setStoredData(initialInvestmentData);
+    form.reset(initialInvestmentData);
     setResults(null);
   }
 
@@ -100,7 +103,19 @@ export function InvestmentCalculatorForm() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Currency</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select
+                    onValueChange={(newCurrency: Currency) => {
+                      const currentFormValues = form.getValues();
+                      field.onChange(newCurrency);
+                      setStoredData({
+                        ...currentFormValues,
+                        currency: newCurrency,
+                        principalAmount: initialInvestmentData.principalAmount,
+                      });
+                      setResults(null);
+                    }}
+                    value={field.value}
+                  >
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Select currency" />
@@ -158,7 +173,7 @@ export function InvestmentCalculatorForm() {
               control={form.control}
               name="compoundingFrequency"
               render={({ field }) => (
-                <FormItem className="md:col-span-2"> {/* Adjusted for better layout with currency field */}
+                <FormItem className="md:col-span-2">
                   <FormLabel>Compounding Frequency</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>

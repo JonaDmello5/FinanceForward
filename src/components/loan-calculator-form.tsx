@@ -44,7 +44,11 @@ export function LoanCalculatorForm() {
 
  useEffect(() => {
     form.reset(storedData);
-  }, [storedData, form]);
+     // If currency changed via storedData, and form was reset, clear results
+    if (results && storedData.currency !== results.currency) {
+      setResults(null);
+    }
+  }, [storedData, form, results]);
 
   const selectedCurrency = form.watch('currency');
 
@@ -93,7 +97,6 @@ export function LoanCalculatorForm() {
         const lastRecord = amortizationTable[amortizationTable.length - 1];
         if (Math.abs(lastRecord.endingBalance) > 0.005) { 
              lastRecord.principal += lastRecord.endingBalance; 
-             // Installment adjustment for the last payment implicitly handled by principal adjustment.
         }
         lastRecord.endingBalance = 0;
     }
@@ -108,14 +111,14 @@ export function LoanCalculatorForm() {
   }
 
   function onSubmit(data: LoanFormData) {
-    setStoredData(data);
+    setStoredData(data); // Save current form data (including potentially new currency)
     const calculatedResults = calculateLoanDetails(data);
     setResults(calculatedResults);
   }
 
   function handleReset() {
+    setStoredData(initialLoanData); // Reset to initial defaults, including currency
     form.reset(initialLoanData);
-    setStoredData(initialLoanData);
     setResults(null);
   }
 
@@ -153,7 +156,19 @@ export function LoanCalculatorForm() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Currency</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select
+                    onValueChange={(newCurrency: Currency) => {
+                      const currentFormValues = form.getValues();
+                      field.onChange(newCurrency); // Update currency in form state
+                      setStoredData({
+                        ...currentFormValues, // Keep other fields like rate, tenure
+                        currency: newCurrency,
+                        loanAmount: initialLoanData.loanAmount, // Reset loanAmount to its initial default
+                      });
+                      setResults(null); // Clear previous results
+                    }}
+                    value={field.value} // Ensure Select reflects form state
+                  >
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Select currency" />

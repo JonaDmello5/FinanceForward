@@ -49,7 +49,10 @@ export function RetirementPlannerForm() {
   
   useEffect(() => {
     form.reset(storedData);
-  }, [storedData, form]);
+    if (results && storedData.currency !== results.currency) {
+      setResults(null);
+    }
+  }, [storedData, form, results]);
 
   const selectedCurrency = form.watch('currency');
 
@@ -95,8 +98,8 @@ export function RetirementPlannerForm() {
   }
 
   function handleReset() {
-    form.reset(initialRetirementData);
     setStoredData(initialRetirementData);
+    form.reset(initialRetirementData);
     setResults(null);
     setIsLoading(false);
   }
@@ -118,7 +121,20 @@ export function RetirementPlannerForm() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Currency</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select
+                    onValueChange={(newCurrency: Currency) => {
+                      const currentFormValues = form.getValues();
+                      field.onChange(newCurrency);
+                      setStoredData({
+                        ...currentFormValues,
+                        currency: newCurrency,
+                        currentSavings: initialRetirementData.currentSavings,
+                        monthlyContribution: initialRetirementData.monthlyContribution,
+                      });
+                      setResults(null);
+                    }}
+                    value={field.value}
+                  >
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Select currency" />
