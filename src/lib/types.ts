@@ -1,0 +1,67 @@
+export interface LoanFormData {
+  loanAmount: number;
+  interestRate: number;
+  loanTenure: number; // in years
+  repaymentFrequency: 'monthly' | 'bi-weekly' | 'weekly';
+}
+
+export interface AmortizationRecord {
+  period: number;
+  principal: number;
+  interest: number;
+  endingBalance: number;
+}
+
+export interface LoanResults {
+  monthlyInstallment: number;
+  totalRepayment: number;
+  totalInterest: number;
+  amortizationTable: AmortizationRecord[];
+}
+
+export interface InvestmentFormData {
+  principalAmount: number;
+  annualInterestRate: number;
+  investmentPeriod: number; // in years
+  compoundingFrequency: 'annually' | 'semi-annually' | 'quarterly' | 'monthly';
+}
+
+export interface InvestmentResults {
+  futureValue: number;
+  totalInterest: number;
+  totalContributions: number;
+}
+
+export interface RetirementFormData {
+  currentAge: number;
+  retirementAge: number;
+  currentSavings: number;
+  monthlyContribution: number;
+  expectedReturnRate: number; // annual
+}
+
+export interface RetirementResults {
+  totalSavingsAtRetirement: number;
+  totalContributions: number;
+  totalInterestEarned: number;
+}
+
+export interface CryptoInvestmentFormData {
+  cryptoAmount: number;
+  cryptoTicker: 'BTC' | 'ETH' | 'OTHER';
+  investmentPeriod: number; // in years
+}
+
+export interface CryptoInvestmentResults {
+  futureValue: number;
+  initialInvestmentUSD?: number; // Optional, if we can get current price
+  cryptoTicker: string;
+}
+
+// General type for displaying results in a list
+export interface ResultItem {
+  label: string;
+  value: string | number;
+  isEmphasized?: boolean;
+  currency?: boolean;
+}
