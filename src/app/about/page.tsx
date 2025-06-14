@@ -8,12 +8,15 @@ import { AdPlaceholder } from "@/components/ad-placeholder";
 
 async function AboutUsContent() {
   const input: AboutUsContentInput = {
-    missionStatementKeywords: "financial planning, ease of use, traditional finance, cryptocurrency, empower users, transparency, comprehensive tools",
+    missionStatementKeywords: "financial planning, ease of use, traditional finance, cryptocurrency, empower users, transparency, comprehensive tools, intuitive, all-encompassing, dynamic potential, innovative resources, cutting-edge calculators, smarter, informed financial decisions", // Keywords updated to reflect new mission
     calculationExplanationsRequest: "Explain the formulas for loan (EMI), investment (compound interest), and retirement (future value of savings and annuity). Mention that calculations are performed client-side for user privacy and speed, using standard financial formulas.",
     geminiApiUsageDetailsRequest: "Describe how Gemini API (or a mock version representing it) is used to fetch real-time crypto data for future value projections in the Cryptocurrency Investment Calculator. Emphasize that this data, combined with an AI model, provides speculative future values and is for illustrative purposes.",
   };
 
+  const userProvidedMissionStatement = "At FinanceForward, our mission is to empower individuals to confidently shape their financial futures by offering intuitive, all-encompassing planning tools. We strive to seamlessly blend traditional financial strategies with the dynamic potential of cryptocurrency, providing transparent, innovative resources and cutting-edge calculators that guide users toward smarter, more informed financial decisions.";
+
   try {
+    // We still call the AI flow to get other content like calculationExplanations and geminiApiUsageDetails
     const content = await generateAboutUsContent(input);
 
     return (
@@ -24,7 +27,7 @@ async function AboutUsContent() {
             <CardTitle className="text-2xl font-headline text-primary">Our Mission</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-lg leading-relaxed text-foreground/90 text-balance">{content.missionStatement}</p>
+            <p className="text-lg leading-relaxed text-foreground/90 text-balance">{userProvidedMissionStatement}</p>
           </CardContent>
         </Card>
 
@@ -70,7 +73,7 @@ async function AboutUsContent() {
           <Terminal className="h-4 w-4" />
           <AlertTitle>Error Generating Content</AlertTitle>
           <AlertDescription>
-            We encountered an issue generating the About Us page content. Please try refreshing the page. If the problem persists, the AI model might be temporarily unavailable.
+            We encountered an issue generating some parts of the About Us page content. The mission statement is available, but other details might be missing. Please try refreshing the page. If the problem persists, the AI model might be temporarily unavailable.
           </AlertDescription>
         </Alert>
     );
