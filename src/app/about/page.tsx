@@ -14,6 +14,7 @@ async function AboutUsContent() {
   };
 
   const userProvidedMissionStatement = "At FinanceForward, our mission is to empower individuals to confidently shape their financial futures by offering intuitive, all-encompassing planning tools. We strive to seamlessly blend traditional financial strategies with the dynamic potential of cryptocurrency, providing transparent, innovative resources and cutting-edge calculators that guide users toward smarter, more informed financial decisions.";
+  const userProvidedTeamInformation = "FinanceForward is built by a passionate team committed to making financial literacy and planning accessible to all. By blending deep expertise in software development with cutting-edge financial technologies, we craft intuitive, powerful tools designed to simplify complex financial decisions. Our mission is to empower you with the knowledge and confidence to take control of your financial journey.";
 
   try {
     // We still call the AI flow to get other content like calculationExplanations and geminiApiUsageDetails
@@ -40,7 +41,7 @@ async function AboutUsContent() {
           </CardHeader>
           <CardContent>
             <p className="text-lg leading-relaxed text-foreground/90 text-balance">
-              FinanceForward is developed by a dedicated team passionate about making financial literacy and planning accessible to everyone. We combine expertise in software development and financial technologies to create intuitive and powerful tools. Our goal is to empower you to make informed financial decisions with confidence.
+              {userProvidedTeamInformation}
             </p>
           </CardContent>
         </Card>
