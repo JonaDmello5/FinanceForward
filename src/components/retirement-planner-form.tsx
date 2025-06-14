@@ -7,9 +7,10 @@ import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import { LOCAL_STORAGE_KEYS } from "@/lib/constants";
-import type { RetirementFormData, RetirementResults, ResultItem } from "@/lib/types";
+import type { RetirementFormData, RetirementResults, ResultItem, Currency } from "@/lib/types";
 import { ResultsDisplay } from "./results-display";
 import { useEffect, useState } from "react";
 import { AdPlaceholder } from "./ad-placeholder";
@@ -21,6 +22,7 @@ const retirementFormSchema = z.object({
   currentSavings: z.coerce.number().min(0, "Current savings cannot be negative."),
   monthlyContribution: z.coerce.number().min(0, "Monthly contribution cannot be negative."),
   expectedReturnRate: z.coerce.number().min(0, "Expected return rate cannot be negative.").max(50, "Expected return rate seems too high."),
+  currency: z.enum(['USD', 'INR']),
 }).refine(data => data.retirementAge > data.currentAge, {
   message: "Retirement age must be greater than current age.",
   path: ["retirementAge"],
@@ -32,6 +34,7 @@ const initialRetirementData: RetirementFormData = {
   currentSavings: 50000,
   monthlyContribution: 500,
   expectedReturnRate: 7,
+  currency: 'USD',
 };
 
 export function RetirementPlannerForm() {
@@ -47,6 +50,8 @@ export function RetirementPlannerForm() {
   useEffect(() => {
     form.reset(storedData);
   }, [storedData, form]);
+
+  const selectedCurrency = form.watch('currency');
 
   function calculateRetirementSavings(data: RetirementFormData): RetirementResults {
     const { currentAge, retirementAge, currentSavings, monthlyContribution, expectedReturnRate } = data;
@@ -74,6 +79,7 @@ export function RetirementPlannerForm() {
       totalSavingsAtRetirement,
       totalContributions: totalPrincipalInvested,
       totalInterestEarned,
+      currency: data.currency,
     };
   }
 
@@ -96,9 +102,9 @@ export function RetirementPlannerForm() {
   }
 
   const resultItems: ResultItem[] = results ? [
-    { label: "Total Savings at Retirement", value: results.totalSavingsAtRetirement, currency: true, isEmphasized: true },
-    { label: "Total Principal Invested", value: results.totalContributions, currency: true },
-    { label: "Total Interest Earned", value: results.totalInterestEarned, currency: true },
+    { label: "Total Savings at Retirement", value: results.totalSavingsAtRetirement, currencyCode: results.currency, isEmphasized: true },
+    { label: "Total Principal Invested", value: results.totalContributions, currencyCode: results.currency },
+    { label: "Total Interest Earned", value: results.totalInterestEarned, currencyCode: results.currency },
   ] : [];
 
   return (
@@ -106,6 +112,27 @@ export function RetirementPlannerForm() {
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 p-1">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <FormField
+              control={form.control}
+              name="currency"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Currency</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select currency" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="USD">USD ($)</SelectItem>
+                      <SelectItem value="INR">INR (₹)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="currentAge"
@@ -137,7 +164,7 @@ export function RetirementPlannerForm() {
               name="currentSavings"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Current Savings ($)</FormLabel>
+                  <FormLabel>Current Savings</FormLabel>
                   <FormControl>
                     <Input type="number" placeholder="e.g., 50000" {...field} />
                   </FormControl>
@@ -150,7 +177,7 @@ export function RetirementPlannerForm() {
               name="monthlyContribution"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Monthly Savings Contribution ($)</FormLabel>
+                  <FormLabel>Monthly Savings Contribution</FormLabel>
                   <FormControl>
                     <Input type="number" placeholder="e.g., 500" {...field} />
                   </FormControl>
@@ -196,7 +223,7 @@ export function RetirementPlannerForm() {
       {!isLoading && results && (
         <>
           <AdPlaceholder variant="leaderboard" label="Leaderboard Ad (Before Results)" className="my-6" />
-          <ResultsDisplay results={resultItems} />
+          <ResultsDisplay results={resultItems} title={`Retirement Plan (${selectedCurrency})`} />
           <AdPlaceholder variant="inline" label="Ad Targeting Investment Options (After Results)" className="my-6" />
         </>
       )}

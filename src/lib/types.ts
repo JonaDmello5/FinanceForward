@@ -1,8 +1,12 @@
+
+export type Currency = 'USD' | 'INR';
+
 export interface LoanFormData {
   loanAmount: number;
   interestRate: number;
   loanTenure: number; // in years
   repaymentFrequency: 'monthly' | 'bi-weekly' | 'weekly';
+  currency: Currency;
 }
 
 export interface AmortizationRecord {
@@ -17,6 +21,7 @@ export interface LoanResults {
   totalRepayment: number;
   totalInterest: number;
   amortizationTable: AmortizationRecord[];
+  currency: Currency;
 }
 
 export interface InvestmentFormData {
@@ -24,12 +29,14 @@ export interface InvestmentFormData {
   annualInterestRate: number;
   investmentPeriod: number; // in years
   compoundingFrequency: 'annually' | 'semi-annually' | 'quarterly' | 'monthly';
+  currency: Currency;
 }
 
 export interface InvestmentResults {
   futureValue: number;
   totalInterest: number;
   totalContributions: number;
+  currency: Currency;
 }
 
 export interface RetirementFormData {
@@ -38,12 +45,14 @@ export interface RetirementFormData {
   currentSavings: number;
   monthlyContribution: number;
   expectedReturnRate: number; // annual
+  currency: Currency;
 }
 
 export interface RetirementResults {
   totalSavingsAtRetirement: number;
   totalContributions: number;
   totalInterestEarned: number;
+  currency: Currency;
 }
 
 export interface CryptoInvestmentFormData {
@@ -54,7 +63,7 @@ export interface CryptoInvestmentFormData {
 
 export interface CryptoInvestmentResults {
   futureValue: number;
-  initialInvestmentUSD?: number; // Optional, if we can get current price
+  initialInvestmentUSD?: number; 
   cryptoTicker: string;
 }
 
@@ -63,5 +72,5 @@ export interface ResultItem {
   label: string;
   value: string | number;
   isEmphasized?: boolean;
-  currency?: boolean;
+  currencyCode?: Currency; // Changed from boolean to Currency type
 }

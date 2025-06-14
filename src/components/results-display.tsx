@@ -1,5 +1,5 @@
 
-import type { ResultItem } from "@/lib/types";
+import type { ResultItem, Currency } from "@/lib/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
@@ -16,11 +16,17 @@ export function ResultsDisplay({ title = "Calculation Results", results, classNa
     return null;
   }
 
-  const formatValue = (value: string | number, isCurrency?: boolean) => {
+  const formatValue = (value: string | number, currencyCode?: Currency) => {
     if (typeof value === 'number') {
-      return isCurrency 
-        ? value.toLocaleString(undefined, { style: 'currency', currency: 'USD', minimumFractionDigits: 2, maximumFractionDigits: 2 })
-        : value.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+      if (currencyCode) {
+        return new Intl.NumberFormat(currencyCode === 'USD' ? 'en-US' : 'en-IN', {
+          style: 'currency',
+          currency: currencyCode,
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        }).format(value);
+      }
+      return value.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 });
     }
     return value;
   };
@@ -37,7 +43,7 @@ export function ResultsDisplay({ title = "Calculation Results", results, classNa
               <li className="flex justify-between items-center text-sm">
                 <span className={cn("text-muted-foreground", item.isEmphasized && "font-semibold text-foreground")}>{item.label}:</span>
                 <span className={cn("font-semibold", item.isEmphasized ? "text-accent text-lg" : "text-foreground")}>
-                  {formatValue(item.value, item.currency)}
+                  {formatValue(item.value, item.currencyCode)}
                 </span>
               </li>
               {index < results.length - 1 && <Separator className="my-2 bg-border/50" />}

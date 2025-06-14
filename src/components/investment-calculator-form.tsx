@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import { LOCAL_STORAGE_KEYS } from "@/lib/constants";
-import type { InvestmentFormData, InvestmentResults, ResultItem } from "@/lib/types";
+import type { InvestmentFormData, InvestmentResults, ResultItem, Currency } from "@/lib/types";
 import { ResultsDisplay } from "./results-display";
 import { useEffect, useState } from "react";
 import { AdPlaceholder } from "./ad-placeholder";
@@ -20,6 +20,7 @@ const investmentFormSchema = z.object({
   annualInterestRate: z.coerce.number().min(0, "Interest rate cannot be negative.").max(100, "Interest rate seems too high."),
   investmentPeriod: z.coerce.number().min(1, "Investment period must be at least 1 year."),
   compoundingFrequency: z.enum(['annually', 'semi-annually', 'quarterly', 'monthly']),
+  currency: z.enum(['USD', 'INR']),
 });
 
 const initialInvestmentData: InvestmentFormData = {
@@ -27,6 +28,7 @@ const initialInvestmentData: InvestmentFormData = {
   annualInterestRate: 7,
   investmentPeriod: 10,
   compoundingFrequency: 'annually',
+  currency: 'USD',
 };
 
 export function InvestmentCalculatorForm() {
@@ -41,6 +43,8 @@ export function InvestmentCalculatorForm() {
   useEffect(() => {
     form.reset(storedData);
   }, [storedData, form]);
+
+  const selectedCurrency = form.watch('currency');
 
   function calculateInvestmentGrowth(data: InvestmentFormData): InvestmentResults {
     const principal = data.principalAmount;
@@ -63,6 +67,7 @@ export function InvestmentCalculatorForm() {
       futureValue,
       totalInterest,
       totalContributions: principal, 
+      currency: data.currency,
     };
   }
 
@@ -79,9 +84,9 @@ export function InvestmentCalculatorForm() {
   }
 
   const resultItems: ResultItem[] = results ? [
-    { label: "Future Value", value: results.futureValue, currency: true, isEmphasized: true },
-    { label: "Principal Amount", value: results.totalContributions, currency: true },
-    { label: "Total Interest Earned", value: results.totalInterest, currency: true },
+    { label: "Future Value", value: results.futureValue, currencyCode: results.currency, isEmphasized: true },
+    { label: "Principal Amount", value: results.totalContributions, currencyCode: results.currency },
+    { label: "Total Interest Earned", value: results.totalInterest, currencyCode: results.currency },
   ] : [];
 
   return (
@@ -89,12 +94,33 @@ export function InvestmentCalculatorForm() {
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 p-1">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+             <FormField
+              control={form.control}
+              name="currency"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Currency</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select currency" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="USD">USD ($)</SelectItem>
+                      <SelectItem value="INR">INR (₹)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="principalAmount"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Principal Amount ($)</FormLabel>
+                  <FormLabel>Principal Amount</FormLabel>
                   <FormControl>
                     <Input type="number" placeholder="e.g., 1000" {...field} />
                   </FormControl>
@@ -132,7 +158,7 @@ export function InvestmentCalculatorForm() {
               control={form.control}
               name="compoundingFrequency"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="md:col-span-2"> {/* Adjusted for better layout with currency field */}
                   <FormLabel>Compounding Frequency</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
@@ -161,11 +187,10 @@ export function InvestmentCalculatorForm() {
 
       {results && (
         <>
-          <ResultsDisplay results={resultItems} />
+          <ResultsDisplay results={resultItems} title={`Investment Growth (${selectedCurrency})`} />
           <AdPlaceholder variant="inline" label="Ad After Results Display" className="my-6" />
         </>
       )}
     </div>
   );
 }
-

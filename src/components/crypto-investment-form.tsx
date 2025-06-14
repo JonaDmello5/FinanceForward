@@ -83,9 +83,9 @@ export function CryptoInvestmentForm() {
   }
 
   const resultItems: ResultItem[] = results ? [
-    { label: `Projected Future Value (${results.cryptoTicker})`, value: results.futureValue, currency: true, isEmphasized: true },
+    { label: `Projected Future Value (${results.cryptoTicker})`, value: results.futureValue, currencyCode: 'USD', isEmphasized: true }, // Explicitly USD
     { label: "Investment Period", value: `${form.getValues("investmentPeriod")} Years` },
-    { label: `Amount Invested (${results.cryptoTicker})`, value: form.getValues("cryptoAmount") },
+    { label: `Amount Invested (${form.getValues("cryptoTicker")})`, value: form.getValues("cryptoAmount") }, // This is crypto amount, not fiat
   ] : [];
 
   return (
@@ -163,12 +163,12 @@ export function CryptoInvestmentForm() {
 
       {!isLoading && results && (
         <>
-          <ResultsDisplay results={resultItems} title={`Projected Value for ${results.cryptoTicker}`} />
+          <ResultsDisplay results={resultItems} title={`Projected Value for ${results.cryptoTicker} (USD-based)`} />
           <AdPlaceholder variant="inline" label="Crypto Ad (After Data)" className="my-6" />
         </>
       )}
        <p className="text-xs text-muted-foreground mt-4 p-1">
-        Note: Cryptocurrency price predictions are highly speculative and based on a simplified model with a fixed assumed growth rate and mocked current prices. This tool is for illustrative purposes only and not financial advice.
+        Note: Cryptocurrency price predictions are highly speculative and based on a simplified model with a fixed assumed growth rate and mocked current prices (USD). This tool is for illustrative purposes only and not financial advice.
       </p>
     </div>
   );

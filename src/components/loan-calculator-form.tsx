@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableCaption } from "@/components/ui/table";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import { LOCAL_STORAGE_KEYS } from "@/lib/constants";
-import type { LoanFormData, LoanResults, AmortizationRecord, ResultItem } from "@/lib/types";
+import type { LoanFormData, LoanResults, AmortizationRecord, ResultItem, Currency } from "@/lib/types";
 import { ResultsDisplay } from "./results-display";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useEffect, useState } from "react";
@@ -22,6 +22,7 @@ const loanFormSchema = z.object({
   interestRate: z.coerce.number().min(0, "Interest rate cannot be negative.").max(100, "Interest rate seems too high."),
   loanTenure: z.coerce.number().min(1, "Loan tenure must be at least 1 year."),
   repaymentFrequency: z.enum(['monthly', 'bi-weekly', 'weekly']),
+  currency: z.enum(['USD', 'INR']),
 });
 
 const initialLoanData: LoanFormData = {
@@ -29,6 +30,7 @@ const initialLoanData: LoanFormData = {
   interestRate: 5,
   loanTenure: 5,
   repaymentFrequency: 'monthly',
+  currency: 'USD',
 };
 
 export function LoanCalculatorForm() {
@@ -43,6 +45,8 @@ export function LoanCalculatorForm() {
  useEffect(() => {
     form.reset(storedData);
   }, [storedData, form]);
+
+  const selectedCurrency = form.watch('currency');
 
   function calculateLoanDetails(data: LoanFormData): LoanResults {
     const principal = data.loanAmount;
@@ -75,7 +79,7 @@ export function LoanCalculatorForm() {
       const interestPayment = balance * periodicRate;
       const principalPayment = installment - interestPayment;
       balance -= principalPayment;
-      if (balance < 0.005 && balance > -0.005) balance = 0; // Handle floating point precision for zero balance
+      if (balance < 0.005 && balance > -0.005) balance = 0; 
       amortizationTable.push({
         period: i,
         principal: principalPayment,
@@ -85,21 +89,21 @@ export function LoanCalculatorForm() {
        if (balance === 0 && i < numberOfPayments) break; 
     }
     
-    if (amortizationTable.length > 0 && amortizationTable[amortizationTable.length-1].endingBalance !== 0 && amortizationTable[amortizationTable.length-1].endingBalance < installment ) { // Check if there's a tiny remaining balance
+    if (amortizationTable.length > 0 && amortizationTable[amortizationTable.length-1].endingBalance !== 0 && amortizationTable[amortizationTable.length-1].endingBalance < installment ) { 
         const lastRecord = amortizationTable[amortizationTable.length - 1];
-        if (Math.abs(lastRecord.endingBalance) > 0.005) { // Only adjust if difference is meaningful
+        if (Math.abs(lastRecord.endingBalance) > 0.005) { 
              lastRecord.principal += lastRecord.endingBalance; 
-             installment += lastRecord.endingBalance; // Adjust the last installment slightly
+             // Installment adjustment for the last payment implicitly handled by principal adjustment.
         }
         lastRecord.endingBalance = 0;
     }
-
 
     return {
       monthlyInstallment: installment, 
       totalRepayment,
       totalInterest,
       amortizationTable,
+      currency: data.currency,
     };
   }
 
@@ -116,13 +120,27 @@ export function LoanCalculatorForm() {
   }
 
   const resultItems: ResultItem[] = results ? [
-    { label: `${results.amortizationTable.length > 0 && form.getValues("repaymentFrequency") === 'monthly' ? 'Monthly' : 
+    { 
+      label: `${results.amortizationTable.length > 0 && form.getValues("repaymentFrequency") === 'monthly' ? 'Monthly' : 
                 results.amortizationTable.length > 0 && form.getValues("repaymentFrequency") === 'bi-weekly' ? 'Bi-Weekly' :
-                results.amortizationTable.length > 0 && form.getValues("repaymentFrequency") === 'weekly' ? 'Weekly' : 'Periodic'} Installment`, value: results.monthlyInstallment, currency: true, isEmphasized: true },
-    { label: "Total Repayment", value: results.totalRepayment, currency: true },
-    { label: "Total Interest Paid", value: results.totalInterest, currency: true },
+                results.amortizationTable.length > 0 && form.getValues("repaymentFrequency") === 'weekly' ? 'Weekly' : 'Periodic'} Installment`, 
+      value: results.monthlyInstallment, 
+      currencyCode: results.currency, 
+      isEmphasized: true 
+    },
+    { label: "Total Repayment", value: results.totalRepayment, currencyCode: results.currency },
+    { label: "Total Interest Paid", value: results.totalInterest, currencyCode: results.currency },
     { label: "Number of Payments", value: results.amortizationTable.length },
   ] : [];
+
+  const formatCurrencyValue = (value: number, currency: Currency) => {
+    return new Intl.NumberFormat(currency === 'USD' ? 'en-US' : 'en-IN', {
+      style: 'currency',
+      currency: currency,
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(value);
+  };
 
   return (
     <div className="space-y-6">
@@ -131,10 +149,31 @@ export function LoanCalculatorForm() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <FormField
               control={form.control}
+              name="currency"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Currency</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select currency" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="USD">USD ($)</SelectItem>
+                      <SelectItem value="INR">INR (₹)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
               name="loanAmount"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Loan Amount ($)</FormLabel>
+                  <FormLabel>Loan Amount</FormLabel>
                   <FormControl>
                     <Input type="number" placeholder="e.g., 10000" {...field} />
                   </FormControl>
@@ -200,7 +239,7 @@ export function LoanCalculatorForm() {
 
       {results && (
         <>
-          <ResultsDisplay results={resultItems} />
+          <ResultsDisplay results={resultItems} title={`Loan Calculation Results (${selectedCurrency})`} />
           <AdPlaceholder variant="leaderboard" label="Ad Between Results and Next Section" className="my-6" />
           {results.amortizationTable.length > 0 && (
             <div className="mt-8">
@@ -220,9 +259,9 @@ export function LoanCalculatorForm() {
                     {results.amortizationTable.map((record) => (
                       <TableRow key={record.period}>
                         <TableCell className="font-medium">{record.period}</TableCell>
-                        <TableCell>{record.principal.toLocaleString(undefined, { style: 'currency', currency: 'USD' })}</TableCell>
-                        <TableCell>{record.interest.toLocaleString(undefined, { style: 'currency', currency: 'USD' })}</TableCell>
-                        <TableCell className="text-right">{record.endingBalance.toLocaleString(undefined, { style: 'currency', currency: 'USD' })}</TableCell>
+                        <TableCell>{formatCurrencyValue(record.principal, results.currency)}</TableCell>
+                        <TableCell>{formatCurrencyValue(record.interest, results.currency)}</TableCell>
+                        <TableCell className="text-right">{formatCurrencyValue(record.endingBalance, results.currency)}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
