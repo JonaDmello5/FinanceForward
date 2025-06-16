@@ -88,8 +88,8 @@ export default function ContactPage() {
                     <CardTitle className="text-2xl font-headline text-primary">Connect on Social Media</CardTitle>
                 </CardHeader>
                 <CardContent className="flex space-x-6">
-                    <Link href="https://in.linkedin.com/in/joey-salakha0004" passHref legacyBehavior><a target="_blank" rel="noopener noreferrer" aria-label="LinkedIn Profile" className="text-muted-foreground hover:text-primary"><Linkedin className="h-7 w-7" /></a></Link>
-                    <Link href="https://github.com/jonadmello5" passHref legacyBehavior><a target="_blank" rel="noopener noreferrer" aria-label="GitHub Profile" className="text-muted-foreground hover:text-primary"><Github className="h-7 w-7" /></a></Link>
+                    <Link href="https://in.linkedin.com/in/joey-salakha0004" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn Profile" className="text-muted-foreground hover:text-primary"><Linkedin className="h-7 w-7" /></Link>
+                    <Link href="https://github.com/jonadmello5" target="_blank" rel="noopener noreferrer" aria-label="GitHub Profile" className="text-muted-foreground hover:text-primary"><Github className="h-7 w-7" /></Link>
                 </CardContent>
             </Card>
         </div>
