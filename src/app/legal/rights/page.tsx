@@ -23,10 +23,8 @@ export default function RightsPage() {
         <p className="text-md text-foreground/80 leading-relaxed text-balance">
           Open-source libraries and dependencies are governed by their respective licenses as noted in the package manifest.
         </p>
-        <p className="text-md text-foreground/80 leading-relaxed text-balance">
-          Firebase Studio and other third-party services are trademarks of their respective owners and used under appropriate licensing terms.
-        </p>
       </div>
     </div>
   );
 }
+
