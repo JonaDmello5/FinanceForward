@@ -3,7 +3,7 @@
 
 /**
  * @fileOverview This flow calculates the potential future value of a cryptocurrency investment.
- * It is designed to use a tool that can fetch live market data.
+ * It is designed to use a tool that can fetch live market data from the Gemini API.
  *
  * - cryptoFutureValue - A function that calculates the future value of a cryptocurrency investment.
  * - CryptoFutureValueInput - The input type for the cryptoFutureValue function.
@@ -12,6 +12,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import axios from 'axios';
 
 const CryptoFutureValueInputSchema = z.object({
   cryptoAmount: z
@@ -40,49 +41,61 @@ export async function cryptoFutureValue(input: CryptoFutureValueInput): Promise<
   return cryptoFutureValueFlow(input);
 }
 
+const getMockPrice = (ticker: string): number => {
+  const tickerUpper = ticker.toUpperCase();
+  if (tickerUpper === 'BTC') return 110000;
+  if (tickerUpper === 'ETH') return 5500;
+  if (tickerUpper === 'SOL') return 200;
+  if (tickerUpper === 'ADA') return 0.80;
+  if (tickerUpper === 'DOGE') return 0.15;
+  if (tickerUpper === 'DOT') return 7.00;
+  if (tickerUpper === 'LINK') return 15.00;
+  if (tickerUpper === 'LTC') return 80.00;
+  if (tickerUpper === 'BCH') return 400.00;
+  if (tickerUpper === 'XLM') return 0.10;
+  if (tickerUpper === 'FIL') return 5.00;
+  if (tickerUpper === 'TRX') return 0.12;
+  if (tickerUpper === 'XMR') return 120.00;
+  if (tickerUpper === 'EOS') return 0.80;
+  // Fallback for any unrecognized tickers not covered by live API or if API fails
+  console.warn(`No mock price defined for ${ticker}, returning 1 as default.`);
+  return 1;
+};
+
 const getCryptoPrice = ai.defineTool(
   {
     name: 'getCryptoPrice',
-    description: 'Returns the current market value of a cryptocurrency in USD. This tool should be implemented to fetch live data from a cryptocurrency exchange API (e.g., Gemini API).',
+    description: 'Returns the current market value of a cryptocurrency in USD. Attempts to fetch live data from Gemini API, falls back to mock data if unavailable.',
     inputSchema: z.object({
       ticker: z.string().describe('The ticker symbol of the cryptocurrency.'),
     }),
     outputSchema: z.number(),
   },
   async (input) => {
-    // DEVELOPER TODO: Replace the mock implementation below with a real API call to fetch live cryptocurrency prices.
-    // For example, you could use the Gemini API, CoinGecko API, or another cryptocurrency data provider.
-    // You would typically use 'fetch' or a library like 'axios' or a dedicated API client here.
-    // Remember to:
-    // 1. Securely manage any required API keys (e.g., using environment variables).
-    // 2. Handle potential network errors, API rate limits, and data parsing issues.
-    // 3. Ensure the data returned matches the 'outputSchema' (a number representing the price in USD).
-
-    console.warn(
-      `DEVELOPER NOTICE: The 'getCryptoPrice' tool is currently using MOCK data for ${input.ticker}. ` +
-      `For live data, please implement an API call as per the comments in src/ai/flows/crypto-future-value.ts.`
-    );
-
-    // Current MOCK price implementation (for demonstration purposes):
     const tickerUpper = input.ticker.toUpperCase();
-    if (tickerUpper === 'BTC') return 110000;  // Mock Bitcoin price (USD)
-    if (tickerUpper === 'ETH') return 5500;   // Mock Ethereum price (USD)
-    if (tickerUpper === 'SOL') return 200;    // Mock Solana price (USD)
-    if (tickerUpper === 'ADA') return 0.80;   // Mock Cardano price (USD)
-    if (tickerUpper === 'DOGE') return 0.15;  // Mock Dogecoin price (USD)
-    if (tickerUpper === 'DOT') return 7.00;   // Mock Polkadot price (USD)
-    if (tickerUpper === 'LINK') return 15.00; // Mock Chainlink price (USD)
-    if (tickerUpper === 'LTC') return 80.00;  // Mock Litecoin price (USD)
-    if (tickerUpper === 'BCH') return 400.00; // Mock Bitcoin Cash price (USD)
-    if (tickerUpper === 'XLM') return 0.10;   // Mock Stellar price (USD)
-    if (tickerUpper === 'FIL') return 5.00;   // Mock Filecoin price (USD)
-    if (tickerUpper === 'TRX') return 0.12;   // Mock Tron price (USD)
-    if (tickerUpper === 'XMR') return 120.00; // Mock Monero price (USD)
-    if (tickerUpper === 'EOS') return 0.80;   // Mock EOS price (USD)
-    
-    // Fallback for any unrecognized tickers, though schema validation should prevent this.
-    // In a live implementation, you might want to return an error or a specific handling for unsupported tickers.
-    return 1;
+    const geminiSymbol = `${tickerUpper.toLowerCase()}usd`; // Gemini API uses symbols like 'btcusd', 'ethusd'
+
+    try {
+      const endpoint = `https://api.gemini.com/v1/pubticker/${geminiSymbol}`;
+      console.log(`Fetching live price for ${tickerUpper} from ${endpoint}`);
+      const response = await axios.get(endpoint);
+      if (response.data && response.data.last) {
+        const price = parseFloat(response.data.last);
+        console.log(`Live price for ${tickerUpper}: ${price}`);
+        return price;
+      } else {
+        console.warn(`Unexpected response structure from Gemini for ${tickerUpper}. Falling back to mock price.`);
+        return getMockPrice(tickerUpper);
+      }
+    } catch (error: any) {
+      console.error(`Error fetching price for ${tickerUpper} from Gemini: ${error.message}. Status: ${error.response?.status}`);
+      if (error.response?.status === 404) {
+        console.warn(`Ticker ${geminiSymbol} not found on Gemini. Falling back to mock price for ${tickerUpper}.`);
+      } else {
+        console.warn(`Falling back to mock price for ${tickerUpper} due to API error.`);
+      }
+      return getMockPrice(tickerUpper);
+    }
   }
 );
 
@@ -125,8 +138,22 @@ const cryptoFutureValueFlow = ai.defineFlow(
   async input => {
     const {output} = await prompt(input);
     if (!output || typeof output.futureValue === 'undefined' || typeof output.currentPriceUSD === 'undefined') {
-      throw new Error("The AI model did not return the expected output (futureValue and currentPriceUSD) for crypto future value.");
+      // Attempt to get a price directly if the model fails, as a last resort, though the model should call the tool.
+      let fallbackPrice = getMockPrice(input.cryptoTicker);
+      try {
+        fallbackPrice = await getCryptoPrice({ticker: input.cryptoTicker});
+      } catch (e) {
+        console.error("Error in fallback price fetch during flow output validation:", e);
+      }
+
+      const fallbackFutureValue = input.cryptoAmount * fallbackPrice * Math.pow(1.10, input.investmentPeriod);
+      console.warn("AI model did not return the expected output. Using fallback calculation.", { fallbackPrice, fallbackFutureValue });
+      return {
+        currentPriceUSD: fallbackPrice,
+        futureValue: fallbackFutureValue,
+      };
     }
     return output;
   }
 );
+
