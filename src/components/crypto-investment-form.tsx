@@ -20,7 +20,7 @@ import { AdPlaceholder } from "./ad-placeholder";
 
 const cryptoInvestmentFormSchema = z.object({
   cryptoAmount: z.coerce.number().min(0.000001, "Amount must be positive."),
-  cryptoTicker: z.enum(['BTC', 'ETH', 'OTHER'], { required_error: "Please select a cryptocurrency."}),
+  cryptoTicker: z.enum(['BTC', 'ETH', 'SOL', 'ADA', 'OTHER'], { required_error: "Please select a cryptocurrency."}),
   investmentPeriod: z.coerce.number().min(1, "Investment period must be at least 1 year.").max(50, "Period too long."),
 });
 
@@ -123,6 +123,8 @@ export function CryptoInvestmentForm() {
                     <SelectContent>
                       <SelectItem value="BTC">Bitcoin (BTC)</SelectItem>
                       <SelectItem value="ETH">Ethereum (ETH)</SelectItem>
+                      <SelectItem value="SOL">Solana (SOL)</SelectItem>
+                      <SelectItem value="ADA">Cardano (ADA)</SelectItem>
                       <SelectItem value="OTHER">Other (Mocked Price)</SelectItem>
                     </SelectContent>
                   </Select>
@@ -175,4 +177,3 @@ export function CryptoInvestmentForm() {
     </div>
   );
 }
-

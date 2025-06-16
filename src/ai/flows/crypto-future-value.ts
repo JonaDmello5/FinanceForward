@@ -18,8 +18,8 @@ const CryptoFutureValueInputSchema = z.object({
     .number()
     .describe('The amount of cryptocurrency to invest.'),
   cryptoTicker: z
-    .string()
-    .describe('The ticker symbol of the cryptocurrency (e.g., BTC, ETH).'),
+    .string() // Keep as string to allow any ticker, enum validation is in form
+    .describe('The ticker symbol of the cryptocurrency (e.g., BTC, ETH, SOL, ADA).'),
   investmentPeriod: z
     .number()
     .describe('The investment period in years.'),
@@ -64,10 +64,15 @@ const getCryptoPrice = ai.defineTool(
     );
 
     // Current MOCK price implementation (for demonstration purposes):
-    if (input.ticker.toUpperCase() === 'BTC') {
+    const tickerUpper = input.ticker.toUpperCase();
+    if (tickerUpper === 'BTC') {
       return 110000; // Mock Bitcoin price (USD)
-    } else if (input.ticker.toUpperCase() === 'ETH') {
+    } else if (tickerUpper === 'ETH') {
       return 5500; // Mock Ethereum price (USD)
+    } else if (tickerUpper === 'SOL') {
+      return 200; // Mock Solana price (USD)
+    } else if (tickerUpper === 'ADA') {
+      return 0.80; // Mock Cardano price (USD)
     } else {
       // For "OTHER" or any unrecognized tickers, return a generic low mock price.
       // In a live implementation, you might want to return an error or a specific handling for unsupported tickers.
@@ -120,4 +125,3 @@ const cryptoFutureValueFlow = ai.defineFlow(
     return output;
   }
 );
-
