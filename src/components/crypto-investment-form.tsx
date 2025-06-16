@@ -40,7 +40,7 @@ export function CryptoInvestmentForm() {
     resolver: zodResolver(cryptoInvestmentFormSchema),
     defaultValues: storedData,
   });
-  
+
   useEffect(() => {
     form.reset(storedData);
   }, [storedData, form]);
@@ -57,10 +57,11 @@ export function CryptoInvestmentForm() {
         investmentPeriod: data.investmentPeriod,
       };
       const aiResponse = await cryptoFutureValue(input);
-      
-      setResults({ 
+
+      setResults({
         futureValue: aiResponse.futureValue,
-        cryptoTicker: data.cryptoTicker 
+        currentPriceUSD: aiResponse.currentPriceUSD,
+        cryptoTicker: data.cryptoTicker
       });
 
     } catch (error) {
@@ -83,9 +84,10 @@ export function CryptoInvestmentForm() {
   }
 
   const resultItems: ResultItem[] = results ? [
-    { label: `Projected Future Value (${results.cryptoTicker})`, value: results.futureValue, currencyCode: 'USD', isEmphasized: true }, // Explicitly USD
+    ...(results.currentPriceUSD !== undefined ? [{ label: `Current Price per ${results.cryptoTicker} (USD)`, value: results.currentPriceUSD, currencyCode: 'USD' as const }] : []),
+    { label: `Projected Future Value of ${form.getValues("cryptoAmount")} ${results.cryptoTicker} (USD)`, value: results.futureValue, currencyCode: 'USD' as const, isEmphasized: true },
     { label: "Investment Period", value: `${form.getValues("investmentPeriod")} Years` },
-    { label: `Amount Invested (${form.getValues("cryptoTicker")})`, value: form.getValues("cryptoAmount") }, // This is crypto amount, not fiat
+    { label: `Amount Invested (${results.cryptoTicker})`, value: form.getValues("cryptoAmount") },
   ] : [];
 
   return (
@@ -163,7 +165,7 @@ export function CryptoInvestmentForm() {
 
       {!isLoading && results && (
         <>
-          <ResultsDisplay results={resultItems} title={`Projected Value for ${results.cryptoTicker} (USD-based)`} />
+          <ResultsDisplay results={resultItems} title={`Valuation for ${form.getValues("cryptoAmount")} ${results.cryptoTicker}`} />
           <AdPlaceholder variant="inline" label="Crypto Ad (After Data)" className="my-6" />
         </>
       )}
@@ -173,3 +175,4 @@ export function CryptoInvestmentForm() {
     </div>
   );
 }
+

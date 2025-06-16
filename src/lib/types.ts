@@ -63,7 +63,8 @@ export interface CryptoInvestmentFormData {
 
 export interface CryptoInvestmentResults {
   futureValue: number;
-  initialInvestmentUSD?: number; 
+  currentPriceUSD?: number; // Price per unit of crypto in USD
+  initialInvestmentUSD?: number;
   cryptoTicker: string;
 }
 
@@ -72,5 +73,6 @@ export interface ResultItem {
   label: string;
   value: string | number;
   isEmphasized?: boolean;
-  currencyCode?: Currency; // Changed from boolean to Currency type
+  currencyCode?: Currency;
 }
+

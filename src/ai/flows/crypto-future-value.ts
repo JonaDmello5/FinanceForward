@@ -27,9 +27,12 @@ const CryptoFutureValueInputSchema = z.object({
 export type CryptoFutureValueInput = z.infer<typeof CryptoFutureValueInputSchema>;
 
 const CryptoFutureValueOutputSchema = z.object({
+  currentPriceUSD: z
+    .number()
+    .describe('The current market price of the cryptocurrency in USD, obtained from the getCryptoPrice tool.'),
   futureValue: z
     .number()
-    .describe('The potential future value of the cryptocurrency investment.'),
+    .describe('The potential future value of the cryptocurrency investment in USD.'),
 });
 export type CryptoFutureValueOutput = z.infer<typeof CryptoFutureValueOutputSchema>;
 
@@ -40,7 +43,7 @@ export async function cryptoFutureValue(input: CryptoFutureValueInput): Promise<
 const getCryptoPrice = ai.defineTool(
   {
     name: 'getCryptoPrice',
-    description: 'Returns the current market value of a cryptocurrency. This tool should be implemented to fetch live data from a cryptocurrency exchange API (e.g., Gemini API).',
+    description: 'Returns the current market value of a cryptocurrency in USD. This tool should be implemented to fetch live data from a cryptocurrency exchange API (e.g., Gemini API).',
     inputSchema: z.object({
       ticker: z.string().describe('The ticker symbol of the cryptocurrency.'),
     }),
@@ -68,7 +71,7 @@ const getCryptoPrice = ai.defineTool(
     } else {
       // For "OTHER" or any unrecognized tickers, return a generic low mock price.
       // In a live implementation, you might want to return an error or a specific handling for unsupported tickers.
-      return 1; 
+      return 1;
     }
   }
 );
@@ -80,10 +83,8 @@ const prompt = ai.definePrompt({
   tools: [getCryptoPrice],
   prompt: `You are a financial advisor specializing in cryptocurrency investments.
 
-  The user wants to know the potential future value of their cryptocurrency investment.
-  You have access to a tool that provides cryptocurrency prices. It is crucial to use this tool to get the current price for the calculation.
-  
-  Consider the current price of the cryptocurrency (obtained via the getCryptoPrice tool), the amount invested, and the investment period to calculate the future value.
+  The user wants to know the potential future value of their cryptocurrency investment and the current price used for the calculation.
+  You have access to a tool that provides cryptocurrency prices. It is crucial to use this tool to get the current price.
   
   Input:
   Cryptocurrency Amount: {{{cryptoAmount}}}
@@ -92,12 +93,15 @@ const prompt = ai.definePrompt({
   
   Procedure:
   1. Invoke the 'getCryptoPrice' tool with the 'cryptoTicker' to get its current market price in USD.
-  2. Assume a constant annual growth rate of 10% for the cryptocurrency from its current price.
-  3. Calculate the future value of the investment using the formula: futureValue = cryptoAmount * currentPriceFromTool * (1 + 0.10)^investmentPeriod.
-     The 'currentPriceFromTool' is the value returned by the getCryptoPrice tool.
+  2. Store this current market price. This will be used for the 'currentPriceUSD' field in your output.
+  3. Assume a constant annual growth rate of 10% for the cryptocurrency from its current price.
+  4. Calculate the future value of the investment using the formula: futureValue = cryptoAmount * currentPriceFromTool * (1 + 0.10)^investmentPeriod.
+     The 'currentPriceFromTool' is the value returned by the getCryptoPrice tool in step 1.
      The 'futureValue' should be the total USD value after the investment period.
+  5. Populate the 'currentPriceUSD' field in your output with the price obtained in step 1.
+  6. Populate the 'futureValue' field in your output with the value calculated in step 4.
   
-  Return the calculated future value in the format specified in the output schema.
+  Return the current price and the calculated future value in the format specified in the output schema.
   Ensure you call the 'getCryptoPrice' tool.
   `,
 });
@@ -110,8 +114,8 @@ const cryptoFutureValueFlow = ai.defineFlow(
   },
   async input => {
     const {output} = await prompt(input);
-    if (!output) {
-      throw new Error("The AI model did not return the expected output for crypto future value.");
+    if (!output || typeof output.futureValue === 'undefined' || typeof output.currentPriceUSD === 'undefined') {
+      throw new Error("The AI model did not return the expected output (futureValue and currentPriceUSD) for crypto future value.");
     }
     return output;
   }
