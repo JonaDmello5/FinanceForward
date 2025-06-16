@@ -128,7 +128,7 @@ const cryptoFutureValueFlow = ai.defineFlow(
       let fallbackPrice = 1; 
       try {
         console.log(`CryptoFutureValueFlow: Fallback - directly calling getCryptoPrice for ${input.cryptoTicker}`);
-        fallbackPrice = await getCryptoPrice({ ticker: input.cryptoTicker });
+        fallbackPrice = await getCryptoPrice({ ticker: input.cryptoTicker }); // This will re-attempt live, then mock
         console.log(`CryptoFutureValueFlow: Fallback - getCryptoPrice returned: ${fallbackPrice}`);
       } catch(e) {
          console.error("CryptoFutureValueFlow: Fallback - Error in direct getCryptoPrice call:", e);
