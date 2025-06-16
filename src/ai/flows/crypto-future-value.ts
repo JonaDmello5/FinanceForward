@@ -50,30 +50,29 @@ const getCryptoPrice = ai.defineTool(
     const symbol = `${ticker.toLowerCase()}usd`; // Gemini API uses symbols like 'btcusd', 'ethusd'
     const url = `https://api.gemini.com/v1/pubticker/${symbol}`;
     try {
-      console.log(`Attempting to fetch live price for ${ticker} from Gemini: ${url}`);
+      console.log(`getCryptoPrice: Attempting to fetch live price for ${ticker} from Gemini: ${url}`);
       const { data } = await axios.get(url);
       const livePrice = parseFloat(data?.last);
       if (!isNaN(livePrice)) {
-        console.log(`Successfully fetched live price for ${ticker} from Gemini: ${livePrice}`);
+        console.log(`getCryptoPrice: Successfully fetched live price for ${ticker} from Gemini: ${livePrice}`);
         return livePrice;
       }
-      console.warn(`Missing or invalid price from Gemini for ${ticker}. Response:`, data);
+      console.warn(`getCryptoPrice: Missing or invalid price from Gemini for ${ticker}. Response:`, data);
       throw new Error('Missing or invalid price from Gemini');
     } catch (err: any) {
-      // Check if the error is an Axios error and has a response (e.g., 404)
       if (axios.isAxiosError(err) && err.response) {
-        console.warn(`Gemini API request for ${ticker} failed with status ${err.response.status}. Fallback to mock price.`);
+        console.warn(`getCryptoPrice: Gemini API request for ${ticker} failed with status ${err.response.status}. Will attempt fallback to mock price.`);
       } else {
-        console.warn(`Fallback to mock price for ${ticker} due to general error: ${(err as Error).message}`);
+        console.warn(`getCryptoPrice: Fallback to mock price for ${ticker} due to general error: ${(err as Error).message}`);
       }
       
       const fallbackPrice = mockPrices[ticker.toUpperCase()];
       if (fallbackPrice !== undefined) {
-        console.log(`Using mock price for ${ticker}: ${fallbackPrice}`);
+        console.log(`getCryptoPrice: Using mock price for ${ticker}: ${fallbackPrice}`);
         return fallbackPrice;
       }
       // Ultimate fallback if ticker is not even in mockPrices
-      console.warn(`No mock price defined for ${ticker}, returning 1 as default.`);
+      console.error(`getCryptoPrice: No mock price defined for ${ticker}, returning 1 as default.`);
       return 1; 
     }
   }
@@ -111,40 +110,42 @@ const cryptoFutureValueFlow = ai.defineFlow(
     console.log("CryptoFutureValueFlow invoked with input:", input);
     const { output, history } = await prompt(input);
     
-    console.log("AI Model raw output:", output);
+    console.log("CryptoFutureValueFlow: AI Model raw output from prompt:", output);
     if (history) {
       history.forEach(event => {
         if (event.type === 'toolRequest') {
-          console.log("AI requested tool:", event.request.toolName, "with input:", event.request.input);
+          console.log("CryptoFutureValueFlow: AI requested tool:", event.request.toolName, "with input:", event.request.input);
         }
         if (event.type === 'toolResponse') {
-          console.log("Tool responded to:", event.response.toolName, "with output:", event.response.output);
+          console.log("CryptoFutureValueFlow: Tool responded to:", event.response.toolName, "with output:", event.response.output);
         }
       });
     }
 
     if (!output || typeof output.futureValue === 'undefined' || typeof output.currentPriceUSD === 'undefined' || isNaN(output.futureValue) || isNaN(output.currentPriceUSD)) {
-      console.warn(`AI model did not return the expected output structure for ${input.cryptoTicker}, or tool call was problematic. Attempting fallback calculation.`);
-      // Attempt to get price directly, this call itself has fallback to mock.
-      let fallbackPrice = 1; // Default to 1 if everything fails
+      console.warn(`CryptoFutureValueFlow: AI model did not return the expected output structure for ${input.cryptoTicker}, or tool call was problematic. Attempting direct fallback calculation.`);
+      
+      let fallbackPrice = 1; 
       try {
+        console.log(`CryptoFutureValueFlow: Fallback - directly calling getCryptoPrice for ${input.cryptoTicker}`);
         fallbackPrice = await getCryptoPrice({ ticker: input.cryptoTicker });
+        console.log(`CryptoFutureValueFlow: Fallback - getCryptoPrice returned: ${fallbackPrice}`);
       } catch(e) {
-         console.error("Error in direct getCryptoPrice call during fallback:", e);
-         // If getCryptoPrice tool throws, it means both live and mock in it failed.
-         // Use the mock price directly from the map as a last resort if ticker exists there.
+         console.error("CryptoFutureValueFlow: Fallback - Error in direct getCryptoPrice call:", e);
          fallbackPrice = mockPrices[input.cryptoTicker.toUpperCase()] ?? 1;
+         console.log(`CryptoFutureValueFlow: Fallback - Using hardcoded mock price after error: ${fallbackPrice}`);
       }
       
       const fallbackFutureValue = input.cryptoAmount * fallbackPrice * Math.pow(1.10, input.investmentPeriod);
 
-      console.warn(`Using fallback calculation for ${input.cryptoTicker}. Price: $${fallbackPrice}, Future Value: $${fallbackFutureValue.toFixed(2)}`);
+      console.warn(`CryptoFutureValueFlow: Using fallback calculation for ${input.cryptoTicker}. Price: $${fallbackPrice}, Future Value: $${fallbackFutureValue.toFixed(2)}`);
       return {
         currentPriceUSD: fallbackPrice,
         futureValue: parseFloat(fallbackFutureValue.toFixed(2)),
       };
     }
-    console.log(`Successfully calculated for ${input.cryptoTicker}. Current Price: $${output.currentPriceUSD}, Future Value: $${output.futureValue.toFixed(2)}`);
+    
+    console.log(`CryptoFutureValueFlow: Successfully calculated by AI for ${input.cryptoTicker}. Current Price: $${output.currentPriceUSD}, Future Value: $${output.futureValue.toFixed(2)}`);
     return {
         currentPriceUSD: output.currentPriceUSD,
         futureValue: parseFloat(output.futureValue.toFixed(2)),
