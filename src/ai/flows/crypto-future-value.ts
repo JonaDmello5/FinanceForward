@@ -48,9 +48,9 @@ const getCryptoPrice = ai.defineTool(
     // In a real application, this would call the Gemini API to get the current price.
     // For this example, we'll return a mock price.
     if (input.ticker === 'BTC') {
-      return 60000; // Mock Bitcoin price
+      return 110000; // Updated Mock Bitcoin price
     } else if (input.ticker === 'ETH') {
-      return 3000; // Mock Ethereum price
+      return 5500; // Updated Mock Ethereum price
     } else {
       return 1; // Mock price for other cryptocurrencies
     }
@@ -76,7 +76,8 @@ const prompt = ai.definePrompt({
   
   First, determine the current price of the cryptocurrency using the getCryptoPrice tool.
   Then, assume a constant annual growth rate of 10% for the cryptocurrency.
-  Calculate the future value of the investment using the formula: futureValue = cryptoAmount * (1 + growthRate)^investmentPeriod.
+  Calculate the future value of the investment using the formula: futureValue = cryptoAmount * currentPrice * (1 + growthRate)^investmentPeriod.
+  The future value should be based on the USD value of the initial crypto amount.
   
   Return the calculated future value in the format specified in the output schema.
   
