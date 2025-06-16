@@ -18,8 +18,8 @@ const CryptoFutureValueInputSchema = z.object({
     .number()
     .describe('The amount of cryptocurrency to invest.'),
   cryptoTicker: z
-    .string() // Keep as string to allow any ticker, enum validation is in form
-    .describe('The ticker symbol of the cryptocurrency (e.g., BTC, ETH, SOL, ADA).'),
+    .enum(['BTC', 'ETH', 'SOL', 'ADA', 'DOGE', 'DOT', 'LINK', 'LTC', 'BCH', 'XLM', 'FIL', 'TRX', 'XMR', 'EOS', 'OTHER'])
+    .describe('The ticker symbol of the cryptocurrency (e.g., BTC, ETH, SOL, ADA, DOGE, DOT, LINK, LTC, BCH, XLM, FIL, TRX, XMR, EOS).'),
   investmentPeriod: z
     .number()
     .describe('The investment period in years.'),
@@ -65,19 +65,24 @@ const getCryptoPrice = ai.defineTool(
 
     // Current MOCK price implementation (for demonstration purposes):
     const tickerUpper = input.ticker.toUpperCase();
-    if (tickerUpper === 'BTC') {
-      return 110000; // Mock Bitcoin price (USD)
-    } else if (tickerUpper === 'ETH') {
-      return 5500; // Mock Ethereum price (USD)
-    } else if (tickerUpper === 'SOL') {
-      return 200; // Mock Solana price (USD)
-    } else if (tickerUpper === 'ADA') {
-      return 0.80; // Mock Cardano price (USD)
-    } else {
-      // For "OTHER" or any unrecognized tickers, return a generic low mock price.
-      // In a live implementation, you might want to return an error or a specific handling for unsupported tickers.
-      return 1;
-    }
+    if (tickerUpper === 'BTC') return 110000;  // Mock Bitcoin price (USD)
+    if (tickerUpper === 'ETH') return 5500;   // Mock Ethereum price (USD)
+    if (tickerUpper === 'SOL') return 200;    // Mock Solana price (USD)
+    if (tickerUpper === 'ADA') return 0.80;   // Mock Cardano price (USD)
+    if (tickerUpper === 'DOGE') return 0.15;  // Mock Dogecoin price (USD)
+    if (tickerUpper === 'DOT') return 7.00;   // Mock Polkadot price (USD)
+    if (tickerUpper === 'LINK') return 15.00; // Mock Chainlink price (USD)
+    if (tickerUpper === 'LTC') return 80.00;  // Mock Litecoin price (USD)
+    if (tickerUpper === 'BCH') return 400.00; // Mock Bitcoin Cash price (USD)
+    if (tickerUpper === 'XLM') return 0.10;   // Mock Stellar price (USD)
+    if (tickerUpper === 'FIL') return 5.00;   // Mock Filecoin price (USD)
+    if (tickerUpper === 'TRX') return 0.12;   // Mock Tron price (USD)
+    if (tickerUpper === 'XMR') return 120.00; // Mock Monero price (USD)
+    if (tickerUpper === 'EOS') return 0.80;   // Mock EOS price (USD)
+    
+    // For "OTHER" or any unrecognized tickers, return a generic low mock price.
+    // In a live implementation, you might want to return an error or a specific handling for unsupported tickers.
+    return 1;
   }
 );
 
@@ -99,7 +104,7 @@ const prompt = ai.definePrompt({
   Procedure:
   1. Invoke the 'getCryptoPrice' tool with the 'cryptoTicker' to get its current market price in USD.
   2. Store this current market price. This will be used for the 'currentPriceUSD' field in your output.
-  3. Assume a constant annual growth rate of 10% for the cryptocurrency from its current price.
+  3. Assume a constant annual growth rate of 10% for the cryptocurrency from its current price for the future value calculation.
   4. Calculate the future value of the investment using the formula: futureValue = cryptoAmount * currentPriceFromTool * (1 + 0.10)^investmentPeriod.
      The 'currentPriceFromTool' is the value returned by the getCryptoPrice tool in step 1.
      The 'futureValue' should be the total USD value after the investment period.

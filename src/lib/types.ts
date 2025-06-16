@@ -57,7 +57,7 @@ export interface RetirementResults {
 
 export interface CryptoInvestmentFormData {
   cryptoAmount: number;
-  cryptoTicker: 'BTC' | 'ETH' | 'SOL' | 'ADA' | 'OTHER';
+  cryptoTicker: 'BTC' | 'ETH' | 'SOL' | 'ADA' | 'DOGE' | 'DOT' | 'LINK' | 'LTC' | 'BCH' | 'XLM' | 'FIL' | 'TRX' | 'XMR' | 'EOS' | 'OTHER';
   investmentPeriod: number; // in years
 }
 
@@ -75,3 +75,4 @@ export interface ResultItem {
   isEmphasized?: boolean;
   currencyCode?: Currency;
 }
+
