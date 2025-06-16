@@ -75,7 +75,7 @@ export default function ContactPage() {
                 <CardContent className="space-y-4">
                     <div className="flex items-center gap-3">
                         <Mail className="h-6 w-6 text-primary" />
-                        <a href="mailto:joeysalakaeoxs@gmail.com" className="text-foreground/90 hover:text-primary">joeysalakaeoxs@gmail.com</a>
+                        <a href="mailto:joeysalakhaeoxs@gmail.com" className="text-foreground/90 hover:text-primary">joeysalakhaeoxs@gmail.com</a>
                     </div>
                      <p className="text-sm text-muted-foreground">
                         For general inquiries and support, please email us directly. We aim to respond within 24-48 business hours.
