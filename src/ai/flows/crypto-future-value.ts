@@ -10,7 +10,7 @@
  * - CryptoFutureValueOutput - The return type for the cryptoFutureValue function.
  */
 
-import {ai} from '@/ai/genkit';
+import {ai}from '@/ai/genkit';
 import {z} from 'genkit';
 import axios from 'axios';
 
@@ -65,9 +65,9 @@ const getMockPrice = (ticker: string): number => {
 const getCryptoPrice = ai.defineTool(
   {
     name: 'getCryptoPrice',
-    description: 'Returns the current market value of a cryptocurrency in USD. Attempts to fetch live data from Gemini API, falls back to mock data if unavailable.',
+    description: 'Returns the current market value of a cryptocurrency in USD. Attempts to fetch live data from Gemini API, falls back to mock data if unavailable or if specific ticker is not on Gemini.',
     inputSchema: z.object({
-      ticker: z.string().describe('The ticker symbol of the cryptocurrency.'),
+      ticker: z.string().describe('The ticker symbol of the cryptocurrency (e.g., BTC, ETH).'),
     }),
     outputSchema: z.number(),
   },
@@ -77,24 +77,24 @@ const getCryptoPrice = ai.defineTool(
 
     try {
       const endpoint = `https://api.gemini.com/v1/pubticker/${geminiSymbol}`;
-      console.log(`Fetching live price for ${tickerUpper} from ${endpoint}`);
+      console.log(`Attempting to fetch live price for ${tickerUpper} from Gemini: ${endpoint}`);
       const response = await axios.get(endpoint);
       if (response.data && response.data.last) {
         const price = parseFloat(response.data.last);
-        console.log(`Live price for ${tickerUpper}: ${price}`);
+        console.log(`Successfully fetched live price for ${tickerUpper} from Gemini: ${price}`);
         return price;
       } else {
-        console.warn(`Unexpected response structure from Gemini for ${tickerUpper}. Falling back to mock price.`);
-        return getMockPrice(tickerUpper);
+        console.warn(`Unexpected response structure from Gemini for ${tickerUpper}, though API call succeeded. Falling back to mock price.`);
+        return getMockPrice(tickerUpper); // Fallback to mock if data.last is missing
       }
     } catch (error: any) {
       console.error(`Error fetching price for ${tickerUpper} from Gemini: ${error.message}. Status: ${error.response?.status}`);
       if (error.response?.status === 404) {
         console.warn(`Ticker ${geminiSymbol} not found on Gemini. Falling back to mock price for ${tickerUpper}.`);
       } else {
-        console.warn(`Falling back to mock price for ${tickerUpper} due to API error.`);
+        console.warn(`Falling back to mock price for ${tickerUpper} due to API error during Gemini fetch.`);
       }
-      return getMockPrice(tickerUpper);
+      return getMockPrice(tickerUpper); // Fallback to mock for any API error
     }
   }
 );
@@ -138,16 +138,20 @@ const cryptoFutureValueFlow = ai.defineFlow(
   async input => {
     const {output} = await prompt(input);
     if (!output || typeof output.futureValue === 'undefined' || typeof output.currentPriceUSD === 'undefined') {
-      // Attempt to get a price directly if the model fails, as a last resort, though the model should call the tool.
-      let fallbackPrice = getMockPrice(input.cryptoTicker);
+      // This fallback logic is a safety net if the AI model itself fails to produce the output,
+      // even if the tool call was supposed to happen.
+      let fallbackPrice = getMockPrice(input.cryptoTicker); // Default to mock
       try {
+        // Attempt to get price directly if AI output is malformed, preferring live data if possible
         fallbackPrice = await getCryptoPrice({ticker: input.cryptoTicker});
       } catch (e) {
-        console.error("Error in fallback price fetch during flow output validation:", e);
+        console.error("Error in fallback price fetch during flow output validation (tool might have failed or AI didn't use it):", e);
+        // If getCryptoPrice itself throws an error here, it means both live and mock fetch within it failed.
+        // We'll use the initial getMockPrice result.
       }
 
       const fallbackFutureValue = input.cryptoAmount * fallbackPrice * Math.pow(1.10, input.investmentPeriod);
-      console.warn("AI model did not return the expected output. Using fallback calculation.", { fallbackPrice, fallbackFutureValue });
+      console.warn("AI model did not return the expected output structure or tool call was problematic. Using fallback calculation with best-effort price.", { fallbackPrice, fallbackFutureValue });
       return {
         currentPriceUSD: fallbackPrice,
         futureValue: fallbackFutureValue,
