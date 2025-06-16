@@ -18,7 +18,7 @@ const CryptoFutureValueInputSchema = z.object({
     .number()
     .describe('The amount of cryptocurrency to invest.'),
   cryptoTicker: z
-    .enum(['BTC', 'ETH', 'SOL', 'ADA', 'DOGE', 'DOT', 'LINK', 'LTC', 'BCH', 'XLM', 'FIL', 'TRX', 'XMR', 'EOS', 'OTHER'])
+    .enum(['BTC', 'ETH', 'SOL', 'ADA', 'DOGE', 'DOT', 'LINK', 'LTC', 'BCH', 'XLM', 'FIL', 'TRX', 'XMR', 'EOS'])
     .describe('The ticker symbol of the cryptocurrency (e.g., BTC, ETH, SOL, ADA, DOGE, DOT, LINK, LTC, BCH, XLM, FIL, TRX, XMR, EOS).'),
   investmentPeriod: z
     .number()
@@ -80,7 +80,7 @@ const getCryptoPrice = ai.defineTool(
     if (tickerUpper === 'XMR') return 120.00; // Mock Monero price (USD)
     if (tickerUpper === 'EOS') return 0.80;   // Mock EOS price (USD)
     
-    // For "OTHER" or any unrecognized tickers, return a generic low mock price.
+    // Fallback for any unrecognized tickers, though schema validation should prevent this.
     // In a live implementation, you might want to return an error or a specific handling for unsupported tickers.
     return 1;
   }
