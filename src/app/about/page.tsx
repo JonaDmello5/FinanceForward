@@ -149,7 +149,7 @@ async function AboutUsContent() {
               <AlertTitle>AI Content Note</AlertTitle>
               <AlertDescription>
                 Some supplementary content details are usually AI-enhanced. If parts of this page seem brief, the AI model might be temporarily unavailable. The core information is always displayed.
-              </Aler_Description>
+              </AlertDescription>
             </Alert>
           )}
         </CardContent>
