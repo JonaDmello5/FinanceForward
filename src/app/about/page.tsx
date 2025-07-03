@@ -9,8 +9,8 @@ import { AdPlaceholder } from "@/components/ad-placeholder";
 async function AboutUsContent() {
   const input: AboutUsContentInput = {
     missionStatementKeywords: "financial planning, ease of use, traditional finance, cryptocurrency, empower users, transparency, comprehensive tools, intuitive, all-encompassing, dynamic potential, innovative resources, cutting-edge calculators, smarter, informed financial decisions",
-    calculationExplanationsRequest: "Explain the formulas for loan (EMI), investment (compound interest), and retirement (future value of savings and annuity). Mention that calculations are performed client-side for user privacy and speed, using standard financial formulas.", // This input is still sent, but output overridden below
-    geminiApiUsageDetailsRequest: "Describe how Gemini API (or a mock version representing it) is used to fetch real-time crypto data for future value projections in the Cryptocurrency Investment Calculator. Emphasize that this data, combined with an AI model, provides speculative future values and is for illustrative purposes.", // This input is still sent, but output overridden below
+    calculationExplanationsRequest: "Explain the formulas for loan (EMI), investment (compound interest), and retirement (future value of savings and annuity). Mention that calculations are performed client-side for user privacy and speed, using standard financial formulas.",
+    geminiApiUsageDetailsRequest: "Describe how Gemini API (or a mock version representing it) is used to fetch real-time crypto data for future value projections in the Cryptocurrency Investment Calculator. Emphasize that this data, combined with an AI model, provides speculative future values and is for illustrative purposes.",
   };
 
   const userProvidedMissionStatement = "At FinanceForward, our mission is to empower individuals to confidently shape their financial futures by offering intuitive, all-encompassing planning tools. We strive to seamlessly blend traditional financial strategies with the dynamic potential of cryptocurrency, providing transparent, innovative resources and cutting-edge calculators that guide users toward smarter, more informed financial decisions.";
@@ -80,12 +80,9 @@ async function AboutUsContent() {
   
   let aiGeneratedContent;
   try {
-    // We still call the AI flow, though some of its output is overridden by user-provided text.
-    // This is to keep the component structure simple and in case the flow is used for other subtle purposes or future enhancements.
     aiGeneratedContent = await generateAboutUsContent(input);
   } catch (error) {
     console.error("Failed to generate About Us content via AI:", error);
-    // Fallback content or error display will be handled in the return statement
   }
 
   return (
@@ -177,5 +174,3 @@ export default async function AboutPage() {
 }
 
 export const revalidate = 3600;
-
-    

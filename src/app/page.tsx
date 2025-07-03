@@ -41,10 +41,10 @@ export default function Home() {
       <section className="w-full py-12 md:py-20 lg:py-28 text-center bg-gradient-to-br from-primary/10 via-background to-background rounded-xl shadow-lg">
         <div className="container px-4 md:px-6">
           <h1 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl font-headline text-primary mb-6 text-balance">
-            Welcome to FinanceForward
+            Take Control of Your Financial Future
           </h1>
           <p className="max-w-3xl mx-auto text-lg text-foreground/80 md:text-xl lg:text-2xl mb-8 text-balance">
-            Empower your financial journey with our suite of powerful, intuitive calculators. Whether you're planning for a major purchase, tracking investments, preparing for retirement, or exploring the potential of cryptocurrency, FinanceForward provides the clear, data-driven insights you need to make confident decisions.
+            Feeling overwhelmed by loans, investments, or retirement planning? FinanceForward cuts through the complexity. We provide clear, simple, and powerful calculators to help you understand your numbers, plan with confidence, and build a secure financial future. No jargon, just answers.
           </p>
           <Link href="#tools" passHref>
             <Button size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground shadow-md transition-transform hover:scale-105">
@@ -103,5 +103,3 @@ export default function Home() {
     </div>
   );
 }
-
-    
