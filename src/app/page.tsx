@@ -6,29 +6,29 @@ import { Landmark, Briefcase, Users, Bitcoin, ArrowRight } from 'lucide-react';
 
 const tools = [
   {
-    title: "Loan Calculator",
-    description: "Estimate your loan installments, total interest, and see a detailed amortization schedule.",
+    title: "Loan Calculator Guide",
+    description: "See exactly how much you’ll pay on any loan. Our tool helps you instantly see monthly payments, total costs, and even how early repayments can save you money.",
     href: "/loan-calculator",
     icon: <Landmark className="h-10 w-10 text-primary mb-4" />,
     cta: "Calculate Loan"
   },
   {
-    title: "Investment Calculator",
-    description: "Project the future value of your investments with compound interest calculations.",
+    title: "Investment Growth Forecaster",
+    description: "Discover how your money can grow. Project the future value of your investments with compound interest and see the power of long-term wealth building.",
     href: "/investment-calculator",
     icon: <Briefcase className="h-10 w-10 text-primary mb-4" />,
     cta: "Project Investment"
   },
   {
-    title: "Retirement Planning",
-    description: "Plan for your golden years by estimating your retirement savings and contributions needed.",
+    title: "Retirement Savings Planner",
+    description: "Are you saving enough for retirement? Plan for your golden years by estimating the total savings you'll need and see how your contributions add up over time.",
     href: "/retirement-planner",
     icon: <Users className="h-10 w-10 text-primary mb-4" />,
     cta: "Plan Retirement"
   },
   {
-    title: "Crypto Investment Tracker",
-    description: "Estimate the potential future value of your cryptocurrency investments using AI-powered projections.",
+    title: "AI Crypto Projections",
+    description: "Explore the potential future of your crypto assets. Get AI-powered projections based on market data to understand possible growth scenarios for your investments.",
     href: "/crypto-tracker",
     icon: <Bitcoin className="h-10 w-10 text-primary mb-4" />,
     cta: "Track Crypto"
