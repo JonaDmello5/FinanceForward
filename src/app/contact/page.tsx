@@ -24,10 +24,10 @@ export default function ContactPage() {
     <div className="container mx-auto py-8 px-4 md:px-6">
       <header className="text-center mb-12">
         <h1 className="text-4xl font-bold tracking-tight sm:text-5xl font-headline text-primary">
-          Contact Us
+          Get in Touch
         </h1>
-        <p className="mt-4 text-xl text-foreground/80 max-w-2xl mx-auto text-balance">
-          We&apos;d love to hear from you! Whether you have a question, feedback, or a partnership inquiry, feel free to reach out.
+        <p className="mt-4 text-xl text-foreground/80 max-w-3xl mx-auto text-balance">
+          We&apos;d love to hear from you! Your feedback is vital for improving FinanceForward. Whether you have a question, a feature suggestion, or a partnership inquiry, please don&apos;t hesitate to reach out.
         </p>
       </header>
 
@@ -37,7 +37,7 @@ export default function ContactPage() {
         <Card className="shadow-lg">
           <CardHeader>
             <CardTitle className="text-2xl font-headline text-primary">Send us a Message</CardTitle>
-            <CardDescription>Fill out the form below and we&apos;ll get back to you as soon as possible.</CardDescription>
+            <CardDescription>Fill out the form below. We do our best to respond to all inquiries within 2 business days.</CardDescription>
           </CardHeader>
           <CardContent>
             {/* <form action={submitContactForm} className="space-y-6"> */}
@@ -55,8 +55,8 @@ export default function ContactPage() {
                 <Input type="text" name="subject" id="subject" required className="mt-1" />
               </div>
               <div>
-                <Label htmlFor="message" className="block text-sm font-medium text-foreground">Message</Label>
-                <Textarea name="message" id="message" rows={4} required className="mt-1" />
+                <Label htmlFor="message" className="block text-sm font-medium text-foreground">Your Message</Label>
+                <Textarea name="message" id="message" rows={4} required className="mt-1" placeholder="Let us know how we can help..."/>
               </div>
               <div>
                 <Button type="submit" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground">
@@ -70,7 +70,8 @@ export default function ContactPage() {
         <div className="space-y-8">
             <Card className="shadow-lg">
                 <CardHeader>
-                    <CardTitle className="text-2xl font-headline text-primary">Other Ways to Reach Us</CardTitle>
+                    <CardTitle className="text-2xl font-headline text-primary">Contact Information</CardTitle>
+                     <CardDescription>For direct inquiries, please use the email address below.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                     <div className="flex items-center gap-3">
@@ -78,14 +79,15 @@ export default function ContactPage() {
                         <a href="mailto:joeysalakhaeoxs@gmail.com" className="text-foreground/90 hover:text-primary">joeysalakhaeoxs@gmail.com</a>
                     </div>
                      <p className="text-sm text-muted-foreground">
-                        For general inquiries and support, please email us directly. We aim to respond within 24-48 business hours.
+                        Ideal for general questions, support requests, and business-related communication.
                     </p>
                 </CardContent>
             </Card>
 
             <Card className="shadow-lg">
                 <CardHeader>
-                    <CardTitle className="text-2xl font-headline text-primary">Connect on Social Media</CardTitle>
+                    <CardTitle className="text-2xl font-headline text-primary">Connect With Us</CardTitle>
+                     <CardDescription>Follow our journey and connect with our team on social media.</CardDescription>
                 </CardHeader>
                 <CardContent className="flex space-x-6">
                     <Link href="https://in.linkedin.com/in/joey-salakha0004" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn Profile" className="text-muted-foreground hover:text-primary"><Linkedin className="h-7 w-7" /></Link>
