@@ -158,17 +158,7 @@ export default async function AboutPage() {
       </header>
       
       <AboutUsContent />
-
-      <section className="mt-16 py-12 bg-secondary/30 rounded-xl shadow-lg">
-        <div className="container px-4 md:px-6 text-center">
-          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl font-headline text-primary mb-6">
-            Your Trusted Financial Partner
-          </h2>
-          <p className="max-w-xl mx-auto text-lg text-foreground/80 md:text-xl text-balance">
-            At FinanceForward, our mission is to deliver accurate, user-friendly financial calculators and valuable insights that empower you to make informed decisions. We are committed to continuously enhancing our platform, adding innovative features, and ensuring that you have the tools you need to achieve your financial goals with confidence and ease.
-          </p>
-        </div>
-      </section>
+      
     </div>
   );
 }
