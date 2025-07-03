@@ -1,7 +1,7 @@
 
 import { generateAboutUsContent, AboutUsContentInput } from '@/ai/flows/finance-forward-about-us-page';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { BotMessageSquare, Users, ShieldCheck } from 'lucide-react';
+import { BotMessageSquare, Users, ShieldCheck, Lightbulb } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Terminal } from "lucide-react";
 import { AdPlaceholder } from "@/components/ad-placeholder";
@@ -15,6 +15,7 @@ async function AboutUsContent() {
 
   const userProvidedMissionStatement = "At FinanceForward, our mission is to empower individuals to confidently shape their financial futures by offering intuitive, all-encompassing planning tools. We strive to seamlessly blend traditional financial strategies with the dynamic potential of cryptocurrency, providing transparent, innovative resources and cutting-edge calculators that guide users toward smarter, more informed financial decisions.";
   const userProvidedTeamInformation = "FinanceForward is built by a passionate team committed to making financial literacy and planning accessible to all. By blending deep expertise in software development with cutting-edge financial technologies, we craft intuitive, powerful tools designed to simplify complex financial decisions. Our mission is to empower you with the knowledge and confidence to take control of your financial journey.";
+  const ourStoryContent = "FinanceForward was born from a simple observation: the world of finance is often seen as complex and intimidating. Many people feel left behind, unsure how to plan for their future, manage debt, or understand new opportunities like cryptocurrency. We wanted to change that. We envisioned a single platform where anyone, regardless of their financial background, could access easy-to-use tools to answer their most important financial questions. Our goal is to break down barriers, promote financial literacy, and provide the resources you need to move your finances forward with confidence.";
 
   const financialCalculationsContent = (
     <>
@@ -100,6 +101,18 @@ async function AboutUsContent() {
       </Card>
 
       <AdPlaceholder variant="leaderboard" label="Ad Between Sections" className="my-8" />
+      
+      <Card className="shadow-lg">
+        <CardHeader className="flex flex-row items-center gap-3">
+          <Lightbulb className="h-8 w-8 text-primary" />
+          <CardTitle className="text-2xl font-headline text-primary">Our Story</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-lg leading-relaxed text-foreground/90 text-balance">
+            {ourStoryContent}
+          </p>
+        </CardContent>
+      </Card>
 
       <Card className="shadow-lg">
         <CardHeader className="flex flex-row items-center gap-3">
@@ -136,7 +149,7 @@ async function AboutUsContent() {
               <AlertTitle>AI Content Note</AlertTitle>
               <AlertDescription>
                 Some supplementary content details are usually AI-enhanced. If parts of this page seem brief, the AI model might be temporarily unavailable. The core information is always displayed.
-              </AlertDescription>
+              </Aler_Description>
             </Alert>
           )}
         </CardContent>

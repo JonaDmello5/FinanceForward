@@ -43,7 +43,7 @@ export default function Home() {
             Welcome to FinanceForward
           </h1>
           <p className="max-w-3xl mx-auto text-lg text-foreground/80 md:text-xl lg:text-2xl mb-8 text-balance">
-            Your go-to hub for loans, investments, and crypto insights.
+            Empower your financial journey with our suite of powerful, intuitive calculators. Whether you're planning for a major purchase, tracking investments, preparing for retirement, or exploring the potential of cryptocurrency, FinanceForward provides the clear, data-driven insights you need to make confident decisions.
           </p>
           <Link href="#tools" passHref>
             <Button size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground shadow-md transition-transform hover:scale-105">
