@@ -1,5 +1,4 @@
 
-import Script from 'next/script';
 import { CalculatorCard } from "@/components/calculator-card";
 import { LoanCalculatorForm } from "@/components/loan-calculator-form";
 import { Landmark } from "lucide-react";
@@ -10,13 +9,6 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 export default function LoanCalculatorPage() {
   return (
     <div className="flex flex-col items-center w-full space-y-6">
-      <Script
-        id="adsbygoogle-script"
-        async
-        src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9370081174240595"
-        crossOrigin="anonymous"
-        strategy="afterInteractive"
-      />
       <AdPlaceholder variant="banner" label="Banner Ad (Above Fold)" className="mb-6" />
       <CalculatorCard
         title="Loan Calculator"
